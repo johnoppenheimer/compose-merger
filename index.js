@@ -21,17 +21,35 @@ console.log(chalk.blue(folders.length) + ' folders found');
 console.log('will try to read ' + chalk.gray("'docker-compose.yml'") + ' files');
 
 var fatCompose = {}
+var composes = []
 
+//check all found folders if user can read docker-compose.yml
 folders.forEach(function(folder) {
-    console.log("./" + folder + ' :');
     try {
-        var compose = yaml.safeLoad(fs.readFileSync(srcpath + '/' + folder + '/docker-compose.yml'))
+        fs.accessSync(srcpath + '/' + folder + '/docker-compose.yml', fs.constants.R_OK)
+    } catch (e) {
+        console.log(chalk.yellow('./' + folder + ' : ' + e));
 
+    } finally {
+        composes.push({
+            folder: folder,
+            compose: yaml.safeLoad(fs.readFileSync(srcpath + '/' + folder + '/docker-compose.yml'))
+        })
+    }
+})
+
+console.log(chalk.blue(composes.length) + ' docker-compose.yml found');
+console.log(chalk.bgMagenta('gonna merge them m8'));
+
+//now that we have loaded all docker-compose files, let's merge them
+composes.forEach(function(c) {
+    try {
+        var compose = c.compose
         var containers = Object.keys(compose)
 
         containers.forEach(function(container) {
             if (compose[container].hasOwnProperty('volumes')) {
-                compose[container].volumes = updateVolumes(compose[container].volumes, folder)
+                compose[container].volumes = updateVolumes(compose[container].volumes, c.folder)
             }
             updateExternalLinks(compose, container)
 
@@ -41,14 +59,14 @@ folders.forEach(function(folder) {
     } catch (e) {
         console.log(chalk.red(e));
     } finally {
-        console.log(folder + ' folder ' + chalk.green('done'));
+        console.log(c.folder + ' folder ' + chalk.green('done'));
     }
 })
 
 console.log(chalk.green("OK") + ': add all docker-compose to a big one');
 
 try {
-    console.log("will write the new " + chalk.gray("'docker-compose.yml'"));
+    console.log("will write the new " + chalk.gray("'" + srcpath + "/docker-compose.yml'"));
     var dump = yaml.safeDump(fatCompose, {
         flowLevel: 3
     })
