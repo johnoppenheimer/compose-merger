@@ -56,25 +56,35 @@ composes.forEach(function(c) {
             fatCompose[container] = compose[container]
             console.log(' - ' + container + ' ' + chalk.green('done'));
         })
+        console.log(c.folder + ' folder ' + chalk.green('done'));
     } catch (e) {
         console.log(chalk.red(e));
     } finally {
-        console.log(c.folder + ' folder ' + chalk.green('done'));
+
     }
 })
 
 console.log(chalk.green("OK") + ': add all docker-compose to a big one');
 
 try {
-    console.log("will write the new " + chalk.gray("'" + srcpath + "/docker-compose.yml'"));
+    //verify that the last char of srcpath is not a '/'
+    if (srcpath.endsWith('/')) {
+        srcpath = srcpath.slice(0, -1)
+    }
+    var path = srcpath + "/docker-compose.yml"
+
+    console.log("will write the new " + chalk.gray("'" + path + "'"));
     var dump = yaml.safeDump(fatCompose, {
         flowLevel: 3
     })
-    fs.writeFileSync('docker-compose.yml', dump)
+
+    fs.writeFileSync(path, dump)
+
+    console.log(chalk.green('Successfully merged all your docker-compose.yml!'));
 } catch (e) {
     console.log(chalk.red(e));
 } finally {
-    console.log(chalk.green('Successfully merged your docker-compose.yml!'));
+
 }
 
 //Add folder's name to the file or folder path when passing volume to the container
