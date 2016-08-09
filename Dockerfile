@@ -12,4 +12,4 @@ RUN npm install
 
 VOLUME /docker
 
-CMD [ "npm", "start", "/docker" ]
+CMD [ "node", "index.js", "/docker" ]
