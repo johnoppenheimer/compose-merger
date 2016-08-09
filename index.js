@@ -93,12 +93,12 @@ function updateVolumes(volumes, folderName) {
     var newVolumes = []
     volumes.forEach(function(volume) {
         if (volume.startsWith("./")) {
-            var newVolumePath = './' + folderName + '/' + volume.slice(2, volume.length - 1)
+            var newVolumePath = './' + folderName + '/' + volume.slice(2, volume.length)
             newVolumes.push(newVolumePath)
         }
 
         if (volume.startsWith('../')) {
-            newVolumes.push(volume.slice(1, volume.length - 1))
+            newVolumes.push(volume.slice(1, volume.length))
         }
     })
 
