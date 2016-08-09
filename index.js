@@ -23,19 +23,25 @@ console.log('will try to read ' + chalk.gray("'docker-compose.yml'") + ' files')
 var fatCompose = {}
 
 folders.forEach(function(folder) {
+    console.log("./" + folder + ' :');
     try {
         var compose = yaml.safeLoad(fs.readFileSync(srcpath + '/' + folder + '/docker-compose.yml'))
-        var dockerName = Object.keys(compose)[0]
 
-        if (compose[dockerName].hasOwnProperty('volumes')) {
-            compose[dockerName].volumes = updateVolumes(compose[dockerName].volumes, folder)
-        }
-        updateExternalLinks(compose, dockerName)
-        fatCompose[dockerName] = compose[dockerName]
+        var containers = Object.keys(compose)
+
+        containers.forEach(function(container) {
+            if (compose[container].hasOwnProperty('volumes')) {
+                compose[container].volumes = updateVolumes(compose[container].volumes, folder)
+            }
+            updateExternalLinks(compose, container)
+
+            fatCompose[container] = compose[container]
+            console.log(' - ' + container + ' ' + chalk.green('done'));
+        })
     } catch (e) {
         console.log(chalk.red(e));
     } finally {
-        console.log(dockerName + ' ' + chalk.green('done'));
+        console.log(folder + ' folder ' + chalk.green('done'));
     }
 })
 
@@ -43,7 +49,9 @@ console.log(chalk.green("OK") + ': add all docker-compose to a big one');
 
 try {
     console.log("will write the new " + chalk.gray("'docker-compose.yml'"));
-    var dump = yaml.safeDump(fatCompose)
+    var dump = yaml.safeDump(fatCompose, {
+        flowLevel: 3
+    })
     fs.writeFileSync('docker-compose.yml', dump)
 } catch (e) {
     console.log(chalk.red(e));
