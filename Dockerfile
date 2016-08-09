@@ -1,4 +1,5 @@
 FROM node:latest
+MAINTAINER SushiFu
 
 # Create app directory
 RUN mkdir -p /app

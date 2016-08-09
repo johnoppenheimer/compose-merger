@@ -1,0 +1,32 @@
+stages:
+    - build
+    - deploy
+
+before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN hub.036.fr
+
+variables:
+    HUB_URL: "hub.036.fr/036/compose-merger"
+    TAG: ":latest"
+
+build:
+    stage: build
+    tags:
+        - docker
+    image: docker:latest
+    script:
+        - docker info
+        - docker build -t $HUB_URL .
+        - docker push $HUB_URL$TAG
+    only:
+        - master
+
+deploy:
+    stage: deploy
+    tags:
+        - deploy
+    script:
+        - docker rmi $HUB_URL$TAG
+        - docker pull $HUB_URL$TAG
+    only:
+        - master
