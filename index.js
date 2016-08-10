@@ -27,7 +27,7 @@ var composes = []
 folders.forEach(function(folder) {
     try {
         fs.accessSync(srcpath + '/' + folder + '/docker-compose.yml', fs.constants.R_OK)
-        
+
         composes.push({
             folder: folder,
             compose: yaml.safeLoad(fs.readFileSync(srcpath + '/' + folder + '/docker-compose.yml'))
@@ -92,14 +92,17 @@ try {
 function updateVolumes(volumes, folderName) {
     var newVolumes = []
     volumes.forEach(function(volume) {
+        var newVolumePath = volume
+
         if (volume.startsWith("./")) {
             var newVolumePath = './' + folderName + '/' + volume.slice(2, volume.length)
-            newVolumes.push(newVolumePath)
         }
 
         if (volume.startsWith('../')) {
-            newVolumes.push(volume.slice(1, volume.length))
+            newVolumePath = volume.slice(1, volume.length)
         }
+
+        newVolumes.push(newVolumePath)
     })
 
     return newVolumes
