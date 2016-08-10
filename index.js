@@ -27,14 +27,14 @@ var composes = []
 folders.forEach(function(folder) {
     try {
         fs.accessSync(srcpath + '/' + folder + '/docker-compose.yml', fs.constants.R_OK)
-    } catch (e) {
-        console.log(chalk.yellow('./' + folder + ' : ' + e));
-
-    } finally {
+        
         composes.push({
             folder: folder,
             compose: yaml.safeLoad(fs.readFileSync(srcpath + '/' + folder + '/docker-compose.yml'))
         })
+    } catch (e) {
+        console.log(chalk.yellow('./' + folder + ' : ' + e));
+    } finally {
     }
 })
 
